@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+  
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+
+    <!--jquery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <title>Al Dente</title>
+
+    <!-- Google Map -->
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 500px;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+    <!-- Script to Obtain Position-->
+    <script>
+      getLocation();
+      
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+          x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+      }
+      
+      function showPosition(position) {
+        
+        pos = {lat: position.coords.latitude, lng: position.coords.longitude};
+        $.ajax({
+              type: "POST",
+              url: "/postmethod",
+              contentType: "application/json",
+              data: JSON.stringify({location: pos}),
+              dataType: "json",
+              success: function(response) {
+                  console.log(response);
+              },
+              error: function(err) {
+                  console.log(err);
+              }
+          });
+          
+      }
+      </script>
+  </head>
+
+  
+
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">Al Dente</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/jerrylin3321">My Github</a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+
+    <div class="row">
+      <!-- Left Sidebar -->
+      <div class="col-lg-4">
+
+        <h1 class="display-4">Al Dente</h1>
+        <h5>Quick Recommendations</h5>
+        <div class="list-group">
+          <a href="/food/mexican" class="list-group-item">Mexican</a>
+          <a href="/food/chinese" class="list-group-item">Chinese</a>
+          <a href="/food/burgers" class="list-group-item">Burgers</a>
+        </div>
+
+        <div id="map"></div>
+          <script>
+            var map;
+            function initMap() {
+              map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: {{ latitude }}, lng: {{longitude}} },
+                zoom: 12
+              });
+
+              {% for key, value in business_dict.items() %}
+                  position = {lat: {{ value['latitude'] }}, lng: {{ value['longitude'] }} }
+
+
+              
+              var marker = new google.maps.Marker({
+                  position: position,
+                  label: "{{ key }}",
+                  map: map
+              });
+              {% endfor %}
+            }
+
+          
+          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=API_KEY_REDACTED&callback=initMap"
+          async defer></script>
+
+        <div id="map"></div>
+      </div>
+      <!-- /.col-lg-3 -->
+
+      <!-- Search Bar -->
+      <div class="col-lg-8">
+        <br>
+        <p class="lead">What food are you looking for today?</p>
+        <form method="POST">
+          <div class="form-row align-items-center" >
+            <div class="col md-12">
+              <input class = "form-control" name = "text" type = "text" placeholder = "Ex: Ice Cream">
+            </div>
+            
+            <div class="col">
+              <button type="submit" class="btn btn-primary">Go</button>
+            </div>
+          </div>
+        </form>
+        <!-- Restaurant Cards -->
+        <div class="row">
+          {% for key, value in business_dict.items() %}
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <a href="#"><img  src={{ value['image_url'] }} style="width: 348px; height: 250px;" alt="" "></a>
+              <div class="card-body">
+                <h4 class="card-title">
+                  <a href={{value['url']}}>{{ value['name'] }}</a>
+                </h4>
+                <p><em>{{ value['category_string'] }}</em></p>
+                <p><em>{{ value['rating_and_number']}}</em></p>
+                <p class="card-text">{{ value['first_review'] }}</p>
+              </div>
+              <div class="card-footer">
+                <small class="text-muted">{{ value['address']['address1']}}</small>
+                <br>
+                <small class="text-muted">{{ value['phone']}}</small>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+          
+
+        </div>
+        <!-- /.row -->
+
+      </div>
+      <!-- /.col-lg-9 -->
+
+    </div>
+    <!-- /.row -->
+
+  </div>
+    
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; Jerry Lin 2020</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+</body>
+
+</html>
+
+
+   
+
+
+
+
