@@ -1,5 +1,5 @@
 # Al Dente
-![Al Dente](https://i.imgur.com/1lo7fLw.png)
+![Al Dente](https://i.imgur.com/GGvLmx4.png)
 
 Access the website [here.](https://find-aldente.herokuapp.com/) Note that it can take quite a long time for the website to initially load, so give it a few seconds.
 
